@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mygdx.game.screens.MainScreen
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Music
-
+import com.badlogic.gdx.graphics.FPSLogger
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 
 
 class Meteo : Game() {
@@ -17,16 +19,21 @@ class Meteo : Game() {
         var SCREEN_WIDTH: Float = 1280f
 
         var WIND_FORCE: Float = 5f
+
+        lateinit var textureAtlas: TextureAtlas
+      /*  var treeTexture: Texture? = null
+        var groundTexture: Texture? = null
+        var leafTexture: Texture? = null */
     }
 
     lateinit var shapeRenderer: ShapeRenderer
     lateinit var batch: SpriteBatch
-    lateinit var font: BitmapFont
 
     override fun create() {
         batch = SpriteBatch()
-        font = BitmapFont()
         shapeRenderer = ShapeRenderer()
+
+        Meteo.textureAtlas = TextureAtlas(Gdx.files.internal("test.txt"))
 
         val music: Music = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"))
         music.isLooping = true
@@ -41,6 +48,7 @@ class Meteo : Game() {
 
     override fun dispose() {
         batch.dispose()
-        font.dispose()
+        Meteo.textureAtlas.dispose()
+        shapeRenderer.dispose()
     }
 }

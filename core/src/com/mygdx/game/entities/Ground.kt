@@ -1,16 +1,15 @@
 package com.mygdx.game.entities
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.mygdx.game.Meteo
 
-class Ground(shapeRenderer: ShapeRenderer): BoundActor(shapeRenderer) {
+class Ground: Actor() {
 
+    var texture: TextureRegion = Meteo.textureAtlas.findRegion("ground")
 
-    override fun renderActor() {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        shapeRenderer.setColor(0.04f, .45f, 0.16f, 1f)
-        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight())
-        shapeRenderer.end()
+    override fun draw(batch: Batch?, parentAlpha: Float) {
+        batch!!.draw(texture, x, y, width, height)
     }
 
 }

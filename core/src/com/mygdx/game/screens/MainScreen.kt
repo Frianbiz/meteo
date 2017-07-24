@@ -79,7 +79,7 @@ class MainScreen(game: Meteo): Screen, InputProcessor  {
 
         var i: Int = 0
         while(i < rand.nextInt(10)) {
-            newRandomDrop()
+       //     newRandomDrop()
             i++
         }
 

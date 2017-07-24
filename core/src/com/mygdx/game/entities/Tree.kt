@@ -59,7 +59,7 @@ class Tree(shapeRenderer: ShapeRenderer): BoundActor(shapeRenderer) {
         var rand: Random = Random()
         if(branch.size > 20f) {
             while (i <  3) {
-                var newBranchSize: Float = branch.size * 0.75f
+                var newBranchSize: Float = branch.size * 0.88f
                 var newBranch: Branch = Branch(rand.nextInt(newBranchSize.toInt()).toFloat(), newBranchSize - rand.nextInt((newBranchSize / 2).toInt()), rand.nextInt(90).toFloat() - 45)
                 branch.weight = 30f * (branch.size / 100f)
                 branch.branchArray.add(newBranch)

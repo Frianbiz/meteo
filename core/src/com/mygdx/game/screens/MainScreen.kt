@@ -5,9 +5,16 @@ import com.badlogic.gdx.Gdx.*
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.audio.Music
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.FPSLogger
 import com.badlogic.gdx.graphics.GL20
 import com.mygdx.game.Meteo
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.FitViewport
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.mygdx.game.entities.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -15,39 +22,44 @@ import kotlin.collections.ArrayList
 
 class MainScreen(game: Meteo): Screen, InputProcessor  {
     var game: Meteo = game
-    var camera: OrthographicCamera = OrthographicCamera()
-
     var rand: Random = Random()
 
-    var ground: Ground = Ground(game.shapeRenderer)
+    var stage: Stage = Stage(FitViewport(Meteo.SCREEN_WIDTH, Meteo.SCREEN_HEIGHT))
+
+    var ground: Ground = Ground()
     var cloud: Cloud = Cloud(game.shapeRenderer)
-    var rainDropList: MutableList<RainDrop> = mutableListOf()
-    var treeList: ArrayList<Tree> = ArrayList()
     var light: Lightning = Lightning(game.shapeRenderer)
     val music: Music = Gdx.audio.newMusic(Gdx.files.internal("wind.mp3"))
 
+    var font: BitmapFont = BitmapFont()
+
     init {
+
+        Gdx.input.inputProcessor = stage;
+
+        font.setColor(Color.WHITE)
+        font.data.scale(1f)
 
         music.isLooping = true
         music.volume = 0f
         music.play()
 
-        camera.setToOrtho(false, Meteo.SCREEN_WIDTH, Meteo.SCREEN_HEIGHT)
-        game.shapeRenderer.setProjectionMatrix(camera.combined)
         ground.setX(0f)
         ground.setY(0f)
         ground.setHeight(50f)
         ground.setWidth(Meteo.SCREEN_WIDTH)
 
         var i = 0
-        while(i < 2) {
-            var tree: Tree = Tree(game.shapeRenderer)
+        while(i < 3) {
+            var tree: Tree = Tree()
             tree.setX(100f + rand.nextInt((Meteo.SCREEN_WIDTH - 400f).toInt()).toFloat())
             tree.setY(ground.getHeight());
             tree.setWidth(100f)
             tree.setHeight(300f)
 
-            treeList.add(tree)
+            tree.initTree()
+
+            stage.addActor(tree)
             i++
         }
 
@@ -61,52 +73,33 @@ class MainScreen(game: Meteo): Screen, InputProcessor  {
         light.setY(cloud.getY() - cloud.height)
 
         Gdx.input.setInputProcessor(this);
+
+
+        stage.addActor(ground)
+        game.batch.projectionMatrix = stage.camera.combined
     }
 
     override fun render(delta: Float) {
         gl.glClearColor(0.47f, 0.60f, .69f, 1f)
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        cloud.render()
-        treeList.listIterator().forEach {
-            it.render()
-        }
-        ground.render()
-
-        if(rand.nextInt(100) > 50) {
+        if(rand.nextInt(100) > 10) {
             Meteo.WIND_FORCE += (rand.nextInt(20).toFloat() - rand.nextInt(20).toFloat()) / 50
         }
 
         var i: Int = 0
-        while(i < rand.nextInt(10)) {
-       //     newRandomDrop()
+        while(i < rand.nextInt(50)) {
+            newRandomDrop()
             i++
         }
 
-        // TODO Fix this, list it.remove wont work
-        var list: ArrayList<RainDrop> = ArrayList()
+        stage.act(delta)
+        stage.draw()
 
-        var listIterator: ListIterator<RainDrop> = rainDropList.listIterator()
-        while(listIterator.hasNext()) {
-            var itn: RainDrop = listIterator.next()
-            itn.render()
-            if(itn.collides(ground) || itn.isOutOfScreen()) {
-                list.add(itn)
-            }
+        game.batch.begin()
+        font.draw(game.batch, "fps" + Gdx.graphics.framesPerSecond, 30f, Meteo.SCREEN_HEIGHT - 30f)
+        game.batch.end()
 
-            treeList.listIterator().forEach {
-                if(itn.collides(it)) {
-                    list.add(itn)
-                }
-            }
-        }
-
-        list.listIterator().forEach {
-            rainDropList.remove(it)
-        }
-
-        camera.update()
-        game.batch.setProjectionMatrix(camera.combined)
     }
 
     override fun pause() {
@@ -119,6 +112,8 @@ class MainScreen(game: Meteo): Screen, InputProcessor  {
     }
 
     override fun dispose() {
+        stage.dispose()
+        font.dispose()
     }
 
     override fun show() {
@@ -129,10 +124,10 @@ class MainScreen(game: Meteo): Screen, InputProcessor  {
 
     fun newRandomDrop() {
 
-        var drop: RainDrop = RainDrop(game.shapeRenderer)
+        var drop: RainDrop = RainDrop()
         drop.setY(cloud.getY())
         drop.setX(rand.nextInt(Meteo.SCREEN_WIDTH.toInt() + 300).toFloat())
-        rainDropList.add(drop)
+        stage.addActor(drop)
     }
 
 
